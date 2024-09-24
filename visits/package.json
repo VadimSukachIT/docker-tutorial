@@ -1,0 +1,15 @@
+{
+    "version": "1.0.0",
+    "name": "docker-nodejs",
+
+    "dependencies": {
+        "express": "*",
+        "redis": "2.8.0"
+    },
+    
+    "scripts": {
+        "start": "node index.js",
+        "docker-build": "docker-compose up --build",
+        "docker-stop": "docker-compose down"
+    }
+}

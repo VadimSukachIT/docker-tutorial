@@ -1,46 +1,84 @@
-# Getting Started with Create React App
+# Dockerfile details
+**Set base image**
+ * `FROM <image name>`
+ 
+**Set/create working directory inside container so our files dont conflict with container root files**
+ * `WORKDIR /usr/app`
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**Copy files from workspace to container WORKDIR directory specified earlier**
+  * `COPY ./yourWorkspaceFilesPath ./containerWorkspaceFilesPath`
+  * `COPY --from=<faze name> ./yourWorkspaceFilesPath ./containerWorkspaceFilesPath` - copy files from another "step" in dockerfile
 
-## Available Scripts
+ # Building and tagging an image;
+ * Create dockerfile
+ * `docker build -t -f <dockerfile name> <image name> ./`
+    * -f - specify dockerfile(dev, prod)
+    * -t - tag an image
+    * for an image tag use convention userid:reponame:version
 
-In the project directory, you can run:
+ # Creating and running containers:
+ **Create and start a container**
+ * `docker run -a -it -p <port_outside_container>:<port_inside_container> -v /<workdir>/node_modules -v $(pwd):<workdir>  <image name> sh`
+    * -v - specify path to workdir/node_modules inside container to exclude it and then specify path to reference other files and use volumes
+    * -p - map port
+    * -a - watch for output from docker container;
+    * -it - allow user input inside container;
+    * sh - gives access to terminal inside a container;
 
-### `npm start`
+**Create container**
+ * `docker create <image name>` 
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+ **Start container**
+ * `docker start <container id>`
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+# Executing commands inside container
+**Execute command inside container**
+* docker exec -it <container id> <command> sh 
+    * -a - watch for output from docker container;
+    * -it - allow user input inside container;
+    * sh - gives access to terminal inside a containe;
 
-### `npm test`
+ # Stoping containers
+ **Stop container**
+ * `docker stop <container id>`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+ **Kill container**
+ * `docker kill <container id>`
 
-### `npm run build`
+ # Logging commands
+ **Log all containers**
+ * `docker ps -all`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**See logs inside container for debugging**
+ * `docker logs <container id>`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Docker-compose
+ **Base example of docker-compose.yml file** 
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+ ```javascript
+version: '3' - version of docker-compose cli
+   services: - containers we wanna start
+      redis-service: - specify name/tag of container
+         image: redis - specify base image
+      node-service: - specify name/tag of container
+         build: . - specify path to dockerfile to build an image
+         build: - other way to build
+           context: . - specify root directory
+           dockerfile: dockerfile.dev - specify docker file
+         restart: always - specify restart container policy
+         ports: 
+            - "8081:8081"
+            - "4001:8080"
+         volumes: 
+            - /app/node_modules
+            - .:/app
+```
+**Start containers with docker compose**
+   * `docker-compose up --build`
+      * --build - rebuild images
 
-### `npm run eject`
+**Stop all running containers with docker compose**
+   * `docker-compose down`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+**Log docker-compose containers**
+   * `docker-compose ps`

@@ -1,0 +1,12 @@
+{
+    "version": "1.0.0",
+    "name": "docker-nodejs",
+
+    "dependencies": {
+        "express": "*"
+    },
+    
+    "scripts": {
+        "start": "node index.js"
+    }
+}
